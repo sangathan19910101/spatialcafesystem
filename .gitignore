@@ -1,0 +1,16 @@
+# Node
+node_modules/
+dist/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+backend/.env
+backend/.venv
+
+# Editor
+.vscode/
+.DS_Store
+# Local backend database
+backend/spatial_cafe.db

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bill Receipt - Spatial Cafe System</title>
+    <link rel="stylesheet" href="bill.css">
+</head>
+<body>
+    <div class="bill-container">
+        <div class="bill-wrapper">
+            <!-- Header -->
+            <div class="bill-header">
+                <h1 class="cafe-name">SPATIAL CAFE</h1>
+                <p class="cafe-tagline">Quality Coffee & Pastries</p>
+                <hr class="divider">
+            </div>
+
+            <!-- Bill Info -->
+            <div class="bill-info">
+                <div class="info-row">
+                    <span class="label">Bill #:</span>
+                    <span class="value" id="billNumber">12345</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Table:</span>
+                    <span class="value" id="tableNumber">T1</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Date:</span>
+                    <span class="value" id="billDate">26 Jun 2024</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Time:</span>
+                    <span class="value" id="billTime">10:30 AM</span>
+                </div>
+            </div>
+
+            <hr class="divider">
+
+            <!-- Items Table -->
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th class="col-item">Item</th>
+                        <th class="col-qty">Qty</th>
+                        <th class="col-price">Price</th>
+                        <th class="col-total">Total</th>
+                    </tr>
+                </thead>
+                <tbody id="billItems">
+                    <tr>
+                        <td class="col-item">Cafe Latte</td>
+                        <td class="col-qty">2</td>
+                        <td class="col-price">Rs. 5.50</td>
+                        <td class="col-total">Rs. 11.00</td>
+                    </tr>
+                    <tr>
+                        <td class="col-item">Croissant</td>
+                        <td class="col-qty">1</td>
+                        <td class="col-price">Rs. 3.50</td>
+                        <td class="col-total">Rs. 3.50</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <hr class="divider">
+
+            <!-- Summary -->
+            <div class="bill-summary">
+                <div class="summary-row">
+                    <span class="label">Subtotal:</span>
+                    <span class="value" id="subtotal">Rs. 14.50</span>
+                </div>
+                <div class="summary-row" id="discountRow" style="display: none;">
+                    <span class="label">Discount (<span id="discountPercent">0</span>%):</span>
+                    <span class="value discount" id="discountAmount">-Rs. 0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span class="label">Tax (10%):</span>
+                    <span class="value" id="taxAmount">Rs. 1.45</span>
+                </div>
+                <div class="summary-row total-row">
+                    <span class="label">Total:</span>
+                    <span class="value total-amount" id="totalAmount">Rs. 15.95</span>
+                </div>
+            </div>
+
+            <hr class="divider">
+
+            <!-- Payment Method -->
+            <div class="payment-method">
+                <div class="info-row">
+                    <span class="label">Payment Method:</span>
+                    <span class="value" id="paymentMethod">Cash</span>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="bill-footer">
+                <p>Thank you for your visit!</p>
+                <p class="footer-text">Please visit again</p>
+                <p class="footer-text contact">+1 (234) 567-8900 | www.spatialcafe.com</p>
+            </div>
+
+            <!-- Print Button -->
+            <div style="text-align: center; margin: 20px 0;">
+                <button onclick="window.print()" style="
+                    padding: 12px 30px;
+                    font-size: 16px;
+                    background-color: #3498db;
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-weight: 600;
+                    transition: background-color 0.3s ease;
+                " onmouseover="this.style.backgroundColor='#2980b9'" onmouseout="this.style.backgroundColor='#3498db'">
+                    🖨️ Print Bill
+                </button>
+            </div>
+
+            <!-- Print Instructions -->
+            <div class="print-instructions">
+                <p>📄 Use Ctrl+P or Cmd+P to print this bill</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to populate bill data from URL parameters or localStorage
+        function populateBillData() {
+            try {
+                // Get data from URL parameters
+                const urlParams = new URLSearchParams(window.location.search);
+                const billData = urlParams.get('data') ? JSON.parse(decodeURIComponent(urlParams.get('data'))) : null;
+
+                if (billData) {
+                    // Populate bill information
+                    document.getElementById('billNumber').textContent = billData.billNumber || '12345';
+                    document.getElementById('tableNumber').textContent = billData.tableNumber || 'T1';
+                    document.getElementById('billDate').textContent = billData.date || new Date().toLocaleDateString();
+                    document.getElementById('billTime').textContent = billData.time || new Date().toLocaleTimeString();
+
+                    // Populate items
+                    const itemsBody = document.getElementById('billItems');
+                    itemsBody.innerHTML = '';
+                    
+                    let subtotal = 0;
+                    if (billData.items && Array.isArray(billData.items)) {
+                        billData.items.forEach(item => {
+                            const itemTotal = item.price * item.qty;
+                            subtotal += itemTotal;
+                            
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td class="col-item">${item.name}</td>
+                                <td class="col-qty">${item.qty}</td>
+                                <td class="col-price">Rs. ${item.price.toFixed(2)}</td>
+                                <td class="col-total">Rs. ${itemTotal.toFixed(2)}</td>
+                            `;
+                            itemsBody.appendChild(row);
+                        });
+                    }
+
+                    // Calculate totals
+                    document.getElementById('subtotal').textContent = `Rs. ${subtotal.toFixed(2)}`;
+
+                    // Handle discount
+                    if (billData.discount && billData.discount > 0) {
+                        document.getElementById('discountRow').style.display = 'flex';
+                        document.getElementById('discountPercent').textContent = billData.discount;
+                        const discountAmount = (subtotal * billData.discount) / 100;
+                        document.getElementById('discountAmount').textContent = `-Rs. ${discountAmount.toFixed(2)}`;
+                        subtotal -= discountAmount;
+                    }
+
+                    // Calculate tax and total
+                    const tax = subtotal * 0.10;
+                    const total = subtotal + tax;
+
+                    document.getElementById('taxAmount').textContent = `Rs. ${tax.toFixed(2)}`;
+                    document.getElementById('totalAmount').textContent = `Rs. ${total.toFixed(2)}`;
+
+                    // Payment method
+                    if (billData.paymentMethod) {
+                        document.getElementById('paymentMethod').textContent = billData.paymentMethod;
+                    }
+                }
+            } catch (error) {
+                console.error('Error populating bill data:', error);
+            }
+        }
+
+        // Populate data when page loads
+        window.addEventListener('load', populateBillData);
+    </script>
+</body>
+</html>

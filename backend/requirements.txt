@@ -1,0 +1,6 @@
+fastapi==0.114.0
+uvicorn[standard]==0.24.0
+sqlalchemy==1.4.41
+python-dotenv==1.0.0
+httpx==0.28.1
+pg8000==1.30.5
