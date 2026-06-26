@@ -54,7 +54,7 @@ These are listed in `backend/requirements.txt`.
 From the project root:
 
 ```bash
-cd /home/yi-zaha/temp/code-insider/Spatial_Cafe_System
+cd Spatial_Cafe_System
 npm install
 ```
 
